@@ -60,4 +60,23 @@ RSpec.describe GameOfLife::World do
       end
     end
   end
+
+  describe '#tick' do
+    let(:gen1) do
+      [[0, 1, 0, 0],
+       [1, 1, 1, 0],
+       [0, 0, 0, 0],
+       [0, 0, 0, 0]]
+    end
+
+    it "advances world's state" do
+      the_world.tick
+
+      expect(the_world.cells).to eql(gen1)
+    end
+
+    it "increments the world's generation" do
+      expect { the_world.tick }.to change(the_world, :generation).by(1)
+    end
+  end
 end
