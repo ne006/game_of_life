@@ -8,7 +8,7 @@ RSpec.describe GameOfLife::World do
   let(:gen0) do
     [[1, 1, 1, 0],
      [0, 0, 0, 0],
-     [1, 0, 1, 0],
+     [1, 1, 1, 0],
      [0, 0, 0, 0]]
   end
 
@@ -91,6 +91,12 @@ RSpec.describe GameOfLife::World do
       expect(the_world.cells(generation: 0)).to eql(gen0)
     end
 
+    it 'saves state of the world' do
+      the_world.tick(to: 8)
+
+      expect(the_world.state).to eql('looped')
+    end
+
     context 'when passing generation number' do
       it 'ticks the needed times' do
         init_gen_num = the_world.generation
@@ -98,6 +104,43 @@ RSpec.describe GameOfLife::World do
         the_world.tick(to: 5)
 
         expect(the_world.generation).to eql(5 - init_gen_num)
+      end
+    end
+  end
+
+  describe '#run' do
+    context 'with dead end sceanrio' do
+      let(:gen0) do
+        [[0, 0, 1, 0],
+         [0, 0, 0, 0],
+         [0, 0, 1, 0],
+         [0, 0, 0, 0]]
+      end
+
+      it 'ticks until the world ends' do
+        the_world.run
+
+        expect(the_world.state).to eql('dead')
+      end
+
+      it 'ticks until the last generation' do
+        the_world.run
+
+        expect(the_world.generation).to be(1)
+      end
+    end
+
+    context 'with endless loop' do
+      it 'ticks until a repeating pattern occurs' do
+        the_world.run
+
+        expect(the_world.state).to eql('looped')
+      end
+
+      it 'ticks until the second cycle ends' do
+        the_world.run
+
+        expect(the_world.generation).to be(8)
       end
     end
   end
@@ -131,6 +174,20 @@ RSpec.describe GameOfLife::World do
 
     it 'returns the rulestring' do
       expect(the_world.rulestring).to eql('B467/S2349')
+    end
+  end
+
+  describe '#history' do
+    it 'returns history up to specified generation' do
+      the_world.tick(to: 9)
+      expect(the_world.history).to eql(%w[alive alive alive alive alive alive alive alive looped])
+    end
+
+    context 'with generation supplied' do
+      it 'returns history up to specified generation' do
+        the_world.tick(to: 12)
+        expect(the_world.history(generation: 9)).to eql(%w[alive alive alive alive alive alive alive alive looped])
+      end
     end
   end
 end

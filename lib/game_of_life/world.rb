@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 module GameOfLife
-  class World
-    attr_reader :width, :height, :generation, :rules, :geology
+  class World # rubocop:disable Metrics/ClassLength
+    attr_reader :width, :height, :generation, :rules, :geology, :state
 
     def initialize(cells:, rules: 'B3/S23')
       @geology = []
+      @history = []
       @cells = cells
       @generation = 0
+      @state = 'alive'
 
       validate_cells
       set_borders
@@ -24,14 +26,30 @@ module GameOfLife
       end
     end
 
+    def history(generation: self.generation)
+      unless generation >= 0 && generation <= self.generation
+        raise ArgumentError,
+              "generation should be >= 0 and <= #{self.generation}"
+      end
+
+      @history.first(generation)
+    end
+
     def peek(x, y)
       validate_coords(x, y)
 
       cells.at(y)&.at(x)
     end
 
+    def run
+      tick until end_times?
+    end
+
     def tick(to: generation + 1)
       (to - generation).times do
+        @geology.push @cells
+        @history.push state
+
         new_cells = []
 
         cells.each_with_index do |col, y|
@@ -41,9 +59,10 @@ module GameOfLife
           end
         end
 
-        @geology.push @cells
         @cells = new_cells
         @generation += 1
+
+        set_state
       end
 
       self
@@ -123,6 +142,45 @@ module GameOfLife
 
       @rules = match.named_captures.transform_values { |v| v.chars.map(&:to_i).uniq }
                     .transform_keys(&:to_sym)
+    end
+
+    def set_state
+      @state = if check_for_death
+                 'dead'
+               elsif check_for_loops
+                 'looped'
+               else
+                 'alive'
+               end
+    end
+
+    def end_times?
+      %w[dead looped].include?(state)
+    end
+
+    def check_for_death
+      cells.all? { |row| row.all?(&:zero?) }
+    end
+
+    def check_for_loops # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
+      return false if @geology.size < 2
+      return false if @geology.uniq.size == @geology.size
+
+      repetitions = @geology.each_with_index.each_with_object({}) do |p, r|
+        r[p.first] ||= []
+        r[p.first].push p.last
+      end
+
+      cycles = repetitions.values.yield_self { |r| r.first.zip(*r.last(r.length - 1)) }
+
+      # Check if last cycle is complete
+      return false unless cycles.last.none?(&:nil?)
+
+      # Check if cycles are continuos
+      return false unless cycles.flatten.compact == (0...generation).to_a
+
+      # Check if cycles are actually repeating at least 2 times
+      cycles.length >= 2
     end
   end
 end
