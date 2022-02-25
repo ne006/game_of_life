@@ -86,6 +86,16 @@ RSpec.describe GameOfLife::World do
 
       expect(the_world.cells(generation: 0)).to eql(gen0)
     end
+
+    context 'when passing generation number' do
+      it 'ticks the needed times' do
+        init_gen_num = the_world.generation
+
+        the_world.tick(to: 5)
+
+        expect(the_world.generation).to eql(5 - init_gen_num)
+      end
+    end
   end
 
   describe '#cells' do

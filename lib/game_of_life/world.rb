@@ -33,19 +33,23 @@ module GameOfLife
       cells.at(y)&.at(x)
     end
 
-    def tick
-      new_cells = []
+    def tick(to: generation + 1)
+      (to - generation).times do
+        new_cells = []
 
-      cells.each_with_index do |col, y|
-        new_cells.push []
-        col.each_with_index do |_row, x|
-          new_cells[y][x] = advance_cell x, y
+        cells.each_with_index do |col, y|
+          new_cells.push []
+          col.each_with_index do |_row, x|
+            new_cells[y][x] = advance_cell x, y
+          end
         end
+
+        @geology.push @cells
+        @cells = new_cells
+        @generation += 1
       end
 
-      @geology.push @cells
-      @cells = new_cells
-      @generation += 1
+      self
     end
 
     protected
@@ -64,7 +68,7 @@ module GameOfLife
       new_cell_state
     end
 
-    def cell_neighbours(x, y) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    def cell_neighbours(x, y) # rubocop:disable Metrics/AbcSize
       validate_coords(x, y)
 
       matrix = []
