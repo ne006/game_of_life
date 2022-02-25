@@ -16,7 +16,7 @@ module GameOfLife
       set_borders
     end
 
-    def peek(x, y) # rubocop:disable Naming/MethodParameterName
+    def peek(x, y)
       validate_coords(x, y)
 
       cells.at(y)&.at(x)
@@ -38,7 +38,7 @@ module GameOfLife
 
     protected
 
-    def advance_cell(x, y) # rubocop:disable Naming/MethodParameterName
+    def advance_cell(x, y)
       neighbours_count = cell_neighbours(x, y).reduce(:+)
       cell_state = peek(x, y)
       new_cell_state = cell_state
@@ -52,18 +52,17 @@ module GameOfLife
       new_cell_state
     end
 
-    def cell_neighbours(x, y) # rubocop:disable Naming/MethodParameterName, Metrics/AbcSize, Metrics/MethodLength
+    def cell_neighbours(x, y) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       validate_coords(x, y)
 
       matrix = []
       radii = Math.sqrt(2)
 
       (0..7).each do |a|
-        coords = [
+        coords = overflow_coords(
           x + (Math.cos(a * Math::PI / 4) * radii).round(0),
           y - (Math.sin(a * Math::PI / 4) * radii).round(0)
-        ]
-        validate_coords(*coords)
+        )
         matrix.push coords
       rescue ArgumentError
         next
@@ -72,9 +71,22 @@ module GameOfLife
       matrix.map { |coords| peek(*coords) }.compact
     end
 
-    def validate_coords(x, y) # rubocop:disable Naming/MethodParameterName
+    def validate_coords(x, y)
       raise ArgumentError, "x should be <= #{width}" unless x >= 0 && x <= width
       raise ArgumentError, "y should be <= #{height}" unless y >= 0 && y <= height
+    end
+
+    def overflow_coords(x, y)
+      x_a = x
+      y_a = y
+
+      x_a = width + x if x.negative?
+      y_a = height + y if y.negative?
+
+      x_a = x % width if x > width
+      y_a = y % height if y > height
+
+      [x_a, y_a]
     end
 
     def validate_cells

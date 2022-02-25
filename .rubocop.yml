@@ -8,5 +8,8 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*.rb'
 
+Naming/MethodParameterName:
+  MinNameLength: 1
+
 Style/Documentation:
   Enabled: false
