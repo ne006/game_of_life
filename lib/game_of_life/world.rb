@@ -2,18 +2,29 @@
 
 module GameOfLife
   class World
-    attr_reader :cells, :width, :height, :generation
+    attr_reader :width, :height, :generation
 
     MIN_NEIGHBOURS = 2
     MAX_NEIGHBOURS = 3
     NEEDED_FOR_BIRTH = 3
 
     def initialize(cells:)
+      @geology = []
       @cells = cells
       @generation = 0
 
       validate_cells
       set_borders
+    end
+
+    def cells(generation: self.generation)
+      if generation == self.generation
+        @cells
+      elsif generation >= 0 && generation < self.generation
+        @geology[generation]
+      else
+        raise ArgumentError, "generation should be >= 0 and <= #{self.generation}"
+      end
     end
 
     def peek(x, y)
@@ -32,6 +43,7 @@ module GameOfLife
         end
       end
 
+      @geology.push @cells
       @cells = new_cells
       @generation += 1
     end

@@ -3,13 +3,20 @@
 require 'spec_helper'
 
 RSpec.describe GameOfLife::World do
-  subject(:the_world) do
-    described_class.new(
-      cells: [[1, 1, 1, 0],
-              [0, 0, 0, 0],
-              [1, 0, 1, 0],
-              [0, 0, 0, 0]]
-    )
+  subject(:the_world) { described_class.new(cells: gen0) }
+
+  let(:gen0) do
+    [[1, 1, 1, 0],
+     [0, 0, 0, 0],
+     [1, 0, 1, 0],
+     [0, 0, 0, 0]]
+  end
+
+  let(:gen1) do
+    [[0, 1, 0, 0],
+     [1, 1, 1, 0],
+     [0, 0, 0, 0],
+     [0, 0, 0, 0]]
   end
 
   describe '#initialize' do
@@ -62,13 +69,6 @@ RSpec.describe GameOfLife::World do
   end
 
   describe '#tick' do
-    let(:gen1) do
-      [[0, 1, 0, 0],
-       [1, 1, 1, 0],
-       [0, 0, 0, 0],
-       [0, 0, 0, 0]]
-    end
-
     it "advances world's state" do
       the_world.tick
 
@@ -77,6 +77,38 @@ RSpec.describe GameOfLife::World do
 
     it "increments the world's generation" do
       expect { the_world.tick }.to change(the_world, :generation).by(1)
+    end
+
+    it 'deposits just discarded cells into geology' do
+      gen0 = the_world.cells
+
+      the_world.tick
+
+      expect(the_world.cells(generation: 0)).to eql(gen0)
+    end
+  end
+
+  describe '#cells' do
+    before { the_world.tick }
+
+    let(:current_generation) { 1 }
+
+    context 'without generation' do
+      it 'returns current generation cells' do
+        expect(the_world.cells).to eql(gen1)
+      end
+    end
+
+    context 'with current generation' do
+      it 'returns current generation cells' do
+        expect(the_world.cells(generation: current_generation)).to eql(gen1)
+      end
+    end
+
+    context 'with specified generation' do
+      it 'returns the specified generation cells from geology' do
+        expect(the_world.cells(generation: 0)).to eql(gen0)
+      end
     end
   end
 end
