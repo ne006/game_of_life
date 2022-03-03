@@ -14,7 +14,7 @@ RSpec.describe GameOfLife::World do
 
   let(:gen1) do
     [[0, 1, 0, 0],
-     [1, 1, 1, 0],
+     [1, 0, 1, 0],
      [0, 0, 0, 0],
      [0, 0, 0, 0]]
   end
@@ -30,6 +30,10 @@ RSpec.describe GameOfLife::World do
 
     it 'sets height of the world' do
       expect(the_world.height).to be(4)
+    end
+
+    it 'parses rulestring and set the rules' do
+      expect(the_world.rules).to eql({ survive: [2, 3], birth: [3] })
     end
 
     context 'with invalid cells' do

@@ -2,19 +2,16 @@
 
 module GameOfLife
   class World
-    attr_reader :width, :height, :generation
+    attr_reader :width, :height, :generation, :rules
 
-    MIN_NEIGHBOURS = 2
-    MAX_NEIGHBOURS = 3
-    NEEDED_FOR_BIRTH = 3
-
-    def initialize(cells:)
+    def initialize(cells:, rules: 'B3/S23')
       @geology = []
       @cells = cells
       @generation = 0
 
       validate_cells
       set_borders
+      assign_rules(rules)
     end
 
     def cells(generation: self.generation)
@@ -59,9 +56,9 @@ module GameOfLife
       cell_state = peek(x, y)
       new_cell_state = cell_state
 
-      if cell_state == 1
-        new_cell_state = 0 if neighbours_count < MIN_NEIGHBOURS || neighbours_count > MAX_NEIGHBOURS
-      elsif neighbours_count >= NEEDED_FOR_BIRTH
+      if cell_state == 1 && !rules[:survive].include?(neighbours_count)
+        new_cell_state = 0
+      elsif rules[:birth].include?(neighbours_count)
         new_cell_state = 1
       end
 
@@ -112,6 +109,15 @@ module GameOfLife
     def set_borders
       @width = cells.first.size
       @height = cells.size
+    end
+
+    def assign_rules(rulestring)
+      match = rulestring.match(%r{B(?<birth>\d+)/S(?<survive>\d+)})
+
+      raise ArgumentError, 'rules should be a string like "B3/S23"' unless match
+
+      @rules = match.named_captures.transform_values { |v| v.chars.map(&:to_i) }
+                    .transform_keys(&:to_sym)
     end
   end
 end
