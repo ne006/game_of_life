@@ -125,4 +125,12 @@ RSpec.describe GameOfLife::World do
       end
     end
   end
+
+  describe '#rulestring' do
+    subject(:the_world) { described_class.new(cells: gen0, rules: 'B764/S29342') }
+
+    it 'returns the rulestring' do
+      expect(the_world.rulestring).to eql('B467/S2349')
+    end
+  end
 end
