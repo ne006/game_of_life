@@ -49,6 +49,10 @@ module GameOfLife
       self
     end
 
+    def rulestring
+      rules.map { |type, nums| "#{type[0].upcase}#{nums.sort.join}" }.join('/')
+    end
+
     protected
 
     def advance_cell(x, y)
@@ -116,7 +120,7 @@ module GameOfLife
 
       raise ArgumentError, 'rules should be a string like "B3/S23"' unless match
 
-      @rules = match.named_captures.transform_values { |v| v.chars.map(&:to_i) }
+      @rules = match.named_captures.transform_values { |v| v.chars.map(&:to_i).uniq }
                     .transform_keys(&:to_sym)
     end
   end
