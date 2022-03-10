@@ -2,7 +2,7 @@
 
 module GameOfLife
   class World
-    attr_reader :width, :height, :generation, :rules
+    attr_reader :width, :height, :generation, :rules, :geology
 
     def initialize(cells:, rules: 'B3/S23')
       @geology = []
