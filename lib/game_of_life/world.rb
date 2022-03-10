@@ -107,6 +107,7 @@ module GameOfLife
     end
 
     def validate_cells
+      raise ArgumentError, 'cells is nil' if cells.nil?
       raise ArgumentError, 'cells should be a matrix' unless cells.map(&:size).uniq.size == 1
     end
 
