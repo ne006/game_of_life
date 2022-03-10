@@ -2,7 +2,7 @@
 
 class Environment
   class << self
-    attr_reader :value
+    attr_reader :value, :loader
 
     def init(default: 'development', autoload_paths: [])
       @value = ENV.fetch('RACK_ENV', default)
@@ -17,10 +17,10 @@ class Environment
 
       require 'zeitwerk'
 
-      loader = Zeitwerk::Loader.new
-      autoload_paths.each { |path| loader.push_dir(path) }
-      loader.push_dir('lib')
-      loader.setup
+      @loader = Zeitwerk::Loader.new
+      @loader.push_dir('lib')
+      autoload_paths.each { |path| @loader.push_dir(path) }
+      @loader.setup
     end
   end
 end
