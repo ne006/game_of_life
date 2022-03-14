@@ -20,6 +20,7 @@ class Environment
       @loader = Zeitwerk::Loader.new
       @loader.push_dir('lib')
       autoload_paths.each { |path| @loader.push_dir(path) }
+      @loader.enable_reloading
       @loader.setup
     end
   end
