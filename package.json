@@ -20,6 +20,8 @@
   "devDependencies": {
     "@babel/core": "^7.17.5",
     "@babel/preset-env": "^7.16.11",
+    "@hotwired/stimulus": "^3.0.1",
+    "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "babel-loader": "^8.2.3",
     "css-loader": "^6.7.1",
     "mini-css-extract-plugin": "^2.6.0",
