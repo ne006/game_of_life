@@ -5,6 +5,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
   mode: process.env['BUILD_ENV'] || 'production',
   entry: {
+    index: ['./assets/index/index.js', './assets/index/style.styl']
   },
   output: {
     filename: '[name].[contenthash:7].js',
