@@ -1,0 +1,20 @@
+.world
+  .dimensions
+
+  .rules
+    input[name='rules']:invalid
+      border-color: #c00
+
+  .cells
+    #canvas
+        border: solid 1px #000
+        cursor: pointer
+
+  .generation
+    .geology-playback
+      &.playback
+        &::after
+          content: "⏸"
+      &.paused
+        &::after
+          content: "▶"

@@ -1,3 +1,24 @@
 - content_for :head do
+  ruby:
+    preload = { world: @world }.to_json
+  javascript:
+    window.preload = #{{preload}};
+  script src=asset_url('index.js')
+  link rel='stylesheet' href=asset_url('index.css') type='text/css'
 
-#world
+.world *{'data-controller' => 'world',
+         'data-world-width-value' => @world[:width],
+         'data-world-height-value' => @world[:height],
+         'data-world-rules-value' => @world[:rules],
+         'data-world-generation-value' => @world[:generation]}
+  .dimensions data-world-target='dimensions'
+  .rules data-world-target='rules'
+
+  .cells data-world-target='cellsContainer'
+  .generation data-world-target='generation'
+
+  .fetch data-world-target='fetch'
+    span Generations:
+    input type='number' data-world-generations-value=10 value=10 min=0 data-action='input->world#changeGenerations'
+    button.randomize data-action='click->world#randomize' Randomize
+    button.submit data-action='click->world#submit' Submit

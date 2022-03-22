@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'sinatra/json'
 require 'sinatra/base'
 require 'sinatra/content_for'
 
@@ -14,6 +15,13 @@ module Web
     set :public_folder, File.expand_path('../../public/', __dir__)
 
     get '/' do
+      @world = {
+        geology: [],
+        generation: 0,
+        width: 10,
+        height: 10,
+        rules: 'B3/S23'
+      }
       slim :index, layout: :application
     end
   end
