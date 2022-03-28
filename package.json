@@ -4,8 +4,8 @@
   "description": "Web app for Conway's Game of Life",
   "scripts": {
     "clean": "rm -rf public/assets",
-    "build": "npx webpack -c webpack.config.js",
-    "watch": "npx webpack -c webpack.config.js --watch"
+    "build": "./node_modules/.bin/webpack -c webpack.config.js",
+    "watch": "./node_modules/.bin/webpack -c webpack.config.js --watch"
   },
   "repository": {
     "type": "git",
