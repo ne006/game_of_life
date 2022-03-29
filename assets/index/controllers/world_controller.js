@@ -3,21 +3,41 @@ import { Controller } from '@hotwired/stimulus'
 export default class extends Controller {
   static targets = [
     'dimensions', 'rules', 
-    'cellsContainer', 'cells',
-    'generation'
+    'cellsContainer',
+    'generation', 'fetch'
   ]
   static values = {
     width: Number, height: Number,
     rules: String, generations: Number,
-    generation: Number, maxGeneration: Number
+    generation: Number, maxGeneration: Number,
+    loaded: Boolean
   }
 
   connect(){
     this.render()
   }
 
-  render() {
+  render(){
+    this.resetHTML()
+
+    if(this.loadedValue){
+      this.renderLoaded()
+    } else {
+      this.renderNew()
+    }
+  }
+
+  resetHTML(){
+    this.context.targetObserver.targetsByName.values.forEach(el => el.innerHTML = '')
+  }
+
+  renderNew() {
     this.renderFields()
+    this.renderGeneration()
+    this.renderFetch()
+  }
+
+  renderLoaded() {
     this.renderGeneration()
   }
 
@@ -34,6 +54,68 @@ export default class extends Controller {
                                   <input type="text" name="rules" pattern="B[\d]+\/S[\d]+"
                                          value="${this.rulesValue}" data-action="input->world#changeRules"
                                   ></input>`
+  }
+
+  renderGeneration(num){
+    if(num != undefined) this.generationValue = num
+
+    let cellsData = db.world.geology[num] || []
+
+    let scale = 20
+
+    let cells = `<canvas id="canvas" 
+                      width=${scale*this.widthValue} 
+                      height=${scale*this.heightValue} 
+                      data-action="click->world#clickCanvas"
+                 ></canvas>`
+
+    this.cellsContainerTarget.innerHTML = cells
+
+    this.canvas = this.cellsContainerTarget.getElementsByTagName('canvas')[0].getContext('2d')
+    this.canvas.scaleFactor = scale
+    this.canvas.scale(this.canvas.scaleFactor, this.canvas.scaleFactor)
+    this.canvas.width = scale*this.widthValue
+    this.canvas.height = scale*this.heightValue
+
+    for(let y = 0; y < this.heightValue; y++){
+      for(let x = 0; x < this.widthValue; x++){
+        let state = (cellsData[y] && cellsData[y][x] || false) == 1 ? true : false
+
+        this.setCellState(x, y, state)
+        
+      }
+    }
+
+    this.renderPlaybackControl()
+  }
+
+  renderPlaybackControl(){
+    if(db.world.geology.length > 0){
+      if(this.generationTarget.innerHTML == ''){
+        this.generationTarget.innerHTML = `<input class="generation-num-slider" type="range" 
+                                            min=0 max=${this.maxGenerationValue} value=${this.generationValue}
+                                            data-action="input->world#changeGeneration"
+                                          ></input>
+                                          <span class="generation-num">${this.generationValue}</span>
+                                          <button class="geology-playback paused"
+                                            data-action="click->world#playbackGeology"
+                                          ></button>`
+      } else {
+        this.generationTarget.querySelector('input.generation-num-slider').setAttribute('max', this.maxGenerationValue)
+        this.generationTarget.querySelector('input.generation-num-slider').setAttribute('value', this.generationValue)
+        this.generationTarget.querySelector('span.generation-num').innerHTML = this.generationValue
+      }
+    } else {
+      this.generationTarget.innerHTML = ''
+    }
+  }
+
+  renderFetch(){
+    this.fetchTarget.innerHTML = `<span>Generations:</span>
+                                  <input type='number' data-world-generations-value=10 value=10 min=0 
+                                                       data-action='input->world#changeGenerations'></input>
+                                  <button class='randomize' data-action='click->world#randomize'>Randomize</button>
+                                  <button class='submit' data-action='click->world#submit'>Submit</button>`
   }
 
   changeDimension(e){
@@ -88,50 +170,6 @@ export default class extends Controller {
         e.target.classList.add('paused')
         break
       }
-    }
-  }
-
-  renderGeneration(num){
-    if(num != undefined) this.generationValue = num
-
-    let cellsData = db.world.geology[num] || []
-
-    let scale = 20
-
-    let cells = `<canvas id="canvas" 
-                      width=${scale*this.widthValue} 
-                      height=${scale*this.heightValue} 
-                      data-action="click->world#clickCanvas"
-                 ></canvas>`
-
-    this.cellsContainerTarget.innerHTML = cells
-
-    this.canvas = this.cellsContainerTarget.getElementsByTagName('canvas')[0].getContext('2d')
-    this.canvas.scaleFactor = scale
-    this.canvas.scale(this.canvas.scaleFactor, this.canvas.scaleFactor)
-    this.canvas.width = scale*this.widthValue
-    this.canvas.height = scale*this.heightValue
-
-    for(let y = 0; y < this.heightValue; y++){
-      for(let x = 0; x < this.widthValue; x++){
-        let state = (cellsData[y] && cellsData[y][x] || false) == 1 ? true : false
-
-        this.setCellState(x, y, state)
-        
-      }
-    }
-
-    if(db.world.geology.length > 0){
-      this.generationTarget.innerHTML = `<input class="generation-num-slider" type="range" 
-                                          min=0 max=${this.maxGenerationValue} value=${this.generationValue}
-                                          data-action="input->world#changeGeneration"
-                                         ></input>
-                                         <span class="generation-num">${this.generationValue}</span>
-                                         <button class="geology-playback paused"
-                                          data-action="click->world#playbackGeology"
-                                         ></button>`
-    } else {
-      this.generationTarget.innerHTML = ''
     }
   }
 
@@ -198,6 +236,7 @@ export default class extends Controller {
        this.rulesValue = db.world.rules
        this.generationValue = 0
        this.maxGenerationValue = db.world.geology.length - 1
+       this.loadedValue = true
 
        this.render()
        this.renderGeneration(0)

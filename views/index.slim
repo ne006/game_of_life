@@ -10,7 +10,8 @@
          'data-world-width-value' => @world[:width],
          'data-world-height-value' => @world[:height],
          'data-world-rules-value' => @world[:rules],
-         'data-world-generation-value' => @world[:generation]}
+         'data-world-generation-value' => @world[:generation],
+         'data-world-loaded-value' => "false"}
   .dimensions data-world-target='dimensions'
   .rules data-world-target='rules'
 
@@ -18,7 +19,3 @@
   .generation data-world-target='generation'
 
   .fetch data-world-target='fetch'
-    span Generations:
-    input type='number' data-world-generations-value=10 value=10 min=0 data-action='input->world#changeGenerations'
-    button.randomize data-action='click->world#randomize' Randomize
-    button.submit data-action='click->world#submit' Submit
