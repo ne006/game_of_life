@@ -17,6 +17,7 @@ export default class extends Controller {
     this.render()
   }
 
+  // Rendering
   render(){
     this.resetHTML()
 
@@ -52,7 +53,7 @@ export default class extends Controller {
                                        ></input>`
     this.rulesTarget.innerHTML = `<span>Rulestring: </span>
                                   <input type="text" name="rules" pattern="B[\d]+\/S[\d]+"
-                                         value="${this.rulesValue}" data-action="input->world#changeRules"
+                                         value="${this.rulesValue}" data-action="input->world#changeField"
                                   ></input>`
   }
 
@@ -112,10 +113,18 @@ export default class extends Controller {
 
   renderFetch(){
     this.fetchTarget.innerHTML = `<span>Generations:</span>
-                                  <input type='number' data-world-generations-value=10 value=10 min=0 
-                                                       data-action='input->world#changeGenerations'></input>
+                                  <input type='number' name='generations' data-world-generations-value=10 value=10 min=0 
+                                                       data-action='input->world#changeField'></input>
                                   <button class='randomize' data-action='click->world#randomize'>Randomize</button>
                                   <button class='submit' data-action='click->world#submit'>Submit</button>`
+  }
+
+  // DOM Callbacks
+  changeField(e){
+    let fieldName = e.target.getAttribute('name')
+    let fieldValue = e.target.value
+
+    this[`${fieldName}Value`] = fieldValue
   }
 
   changeDimension(e){
@@ -125,18 +134,6 @@ export default class extends Controller {
     this[`${dimensionName}Value`] = dimensionValue
 
     this.renderGeneration()
-  }
-
-  changeRules(e){
-    let rulestring = e.target.value
-
-    this.rulesValue = rulestring
-  }
-
-  changeGenerations(e){
-    let gensNum = e.target.value
-
-    this.generationsValue = gensNum
   }
 
   changeGeneration(e){
@@ -192,19 +189,6 @@ export default class extends Controller {
     this.setCellState(x, y, !this.getCellState(x, y))
   }
 
-  getCellState(x, y){
-    return this.canvas.getImageData(x*this.canvas.scaleFactor, y*this.canvas.scaleFactor, 1, 1).data[3] == 255
-  }
-
-  setCellState(x, y, state){
-    if(state){
-      this.canvas.fillStyle = "rgb(0,0,0)";
-      this.canvas.fillRect (x, y, 1, 1);      
-    }else{
-      this.canvas.clearRect (x, y, 1, 1);      
-    }
-  }
-
   submit(){
     let params = {}
 
@@ -241,5 +225,19 @@ export default class extends Controller {
        this.render()
        this.renderGeneration(0)
      })
+  }
+
+  // Helper functions
+  getCellState(x, y){
+    return this.canvas.getImageData(x*this.canvas.scaleFactor, y*this.canvas.scaleFactor, 1, 1).data[3] == 255
+  }
+
+  setCellState(x, y, state){
+    if(state){
+      this.canvas.fillStyle = "rgb(0,0,0)";
+      this.canvas.fillRect (x, y, 1, 1);      
+    }else{
+      this.canvas.clearRect (x, y, 1, 1);      
+    }
   }
 }
