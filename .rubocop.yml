@@ -14,5 +14,8 @@ Metrics/MethodLength:
 Naming/MethodParameterName:
   MinNameLength: 1
 
+RSpec/NestedGroups:
+  Max: 6
+
 Style/Documentation:
   Enabled: false
