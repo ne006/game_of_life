@@ -5,10 +5,11 @@ require 'singleton'
 class Store
   include Singleton
 
-  attr_accessor :store
+  attr_accessor :store, :expirations
 
   def initialize
     @store = {}
+    @expirations = {}
   end
 
   def fetch(key)
@@ -17,6 +18,12 @@ class Store
     path = parse_key(key)
 
     get_entry(path).first
+  ensure
+    remove_expired_keys
+  end
+
+  def expire(key, time)
+    expirations[key] = time
   end
 
   def put(key, value)
@@ -39,6 +46,8 @@ class Store
     parent[terminal_key] = value
 
     old_value
+  ensure
+    remove_expired_keys
   end
 
   def drop(key)
@@ -62,6 +71,8 @@ class Store
     else
       parent.delete(terminal_key)
     end
+
+    expirations.delete(key)
 
     old_value
   end
@@ -91,6 +102,15 @@ class Store
       break [value, parent] if index == path.size - 1
 
       [value, value]
+    end
+  end
+
+  def remove_expired_keys
+    expirations.each do |key, time|
+      next if Time.now <= time
+
+      expirations.delete key
+      drop key
     end
   end
 end
