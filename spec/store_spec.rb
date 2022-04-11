@@ -72,6 +72,24 @@ RSpec.describe Store do
         include_examples 'fetches value'
       end
     end
+
+    context 'with key to be expired' do
+      let(:key) { 'phone.0' }
+
+      before { store.expire(key, Time.now - 30) }
+
+      it 'expires the key' do
+        store.fetch(key)
+
+        expect(store.fetch(key.split('.')[0..-2].join('.')).size).to be(1)
+      end
+
+      it 'removes the expiration record' do
+        store.fetch(key)
+
+        expect(store.expirations.key?(key)).to be false
+      end
+    end
   end
 
   shared_examples 'puts value' do
@@ -208,6 +226,17 @@ RSpec.describe Store do
 
         include_examples 'drops value'
       end
+    end
+  end
+
+  describe '#expire' do
+    let(:key) { 'phone.0' }
+    let(:expire) { Time.now - 30 }
+
+    it 'stores the expiration Time of the key' do
+      store.expire(key, expire)
+
+      expect(store.expirations[key]).to eql expire
     end
   end
 end
