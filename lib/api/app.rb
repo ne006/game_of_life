@@ -8,7 +8,7 @@ module Api
 
     set :default_content_type, :json
 
-    get '/world/:uuid/?:generation?' do
+    get '/world/:uuid/?:generation/?' do
       @world = Store.instance.fetch("game_of_life.worlds.#{params['uuid']}")
 
       raise StandardError, "World with UUID #{params['uuid']} not found" unless @world
@@ -21,7 +21,7 @@ module Api
 
       json({
              world: {
-               geology: @world.geology,
+               geology: @world.geology.slice(generation..@world.generation),
                generation: @world.generation,
                width: @world.width,
                height: @world.height,
