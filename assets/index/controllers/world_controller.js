@@ -4,13 +4,13 @@ export default class extends Controller {
   static targets = [
     'dimensions', 'rules', 
     'cellsContainer',
-    'generation', 'fetch'
+    'generation', 'fetch',
   ]
   static values = {
     width: Number, height: Number,
     rules: String, generations: Number,
     generation: Number, maxGeneration: Number,
-    loaded: Boolean
+    loaded: Boolean, uuid: String
   }
 
   connect(){
@@ -144,6 +144,7 @@ export default class extends Controller {
 
   playbackGeology(e){
     let state = e.target.classList.contains('paused') ? 'paused' : 'playback'
+    let load = true
 
     switch(state){
       case 'paused': {
@@ -152,6 +153,8 @@ export default class extends Controller {
         this.playbackLoop = setInterval(()=>{
           if (this.generationValue < this.maxGenerationValue){
             this.renderGeneration(this.generationValue + 1)
+          } else if(load) {
+            (async ()=>{await this.update(10)})()
           } else {
             this.renderGeneration(0)
           }
@@ -205,7 +208,7 @@ export default class extends Controller {
     params.generations = this.generationsValue || 10
     params.rules = this.rulesValue
 
-    fetch(
+    return fetch(
       '/api/world',
       {
         method: 'POST',
@@ -221,9 +224,30 @@ export default class extends Controller {
        this.generationValue = 0
        this.maxGenerationValue = db.world.geology.length - 1
        this.loadedValue = true
+       this.uuidValue = json.uuid
 
        this.render()
        this.renderGeneration(0)
+     })
+  }
+
+  update(numGens = 1){
+    return fetch(
+      `/api/world/${this.uuidValue}/${this.generationValue + numGens}`
+    ).then((resp)=>resp.json())
+     .then((json)=>{
+       db.world = json.world
+
+       this.widthValue = db.world.width
+       this.heightValue = db.world.height
+       this.rulesValue = db.world.rules
+       this.generationValue = this.generationValue + 1
+       this.maxGenerationValue = db.world.geology.length - 1
+       this.loadedValue = true
+       this.uuidValue = json.uuid
+
+       this.render()
+       this.renderGeneration(this.generationValue)
      })
   }
 
