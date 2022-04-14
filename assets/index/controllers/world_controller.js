@@ -236,7 +236,13 @@ export default class extends Controller {
       `/api/world/${this.uuidValue}/${this.generationValue + numGens}`
     ).then((resp)=>resp.json())
      .then((json)=>{
-       db.world = json.world
+       db.world = {
+         generation: json.world.generation,
+         width: json.world.width,
+         height: json.world.height,
+         geology: db.world.geology.concat(json.world.geology),
+         rules: json.world.rules
+       }
 
        this.widthValue = db.world.width
        this.heightValue = db.world.height
