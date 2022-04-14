@@ -153,8 +153,8 @@ export default class extends Controller {
         this.playbackLoop = setInterval(()=>{
           if (this.generationValue < this.maxGenerationValue){
             this.renderGeneration(this.generationValue + 1)
-          } else if(load) {
-            (async ()=>{await this.update(10)})()
+
+            if(load && this.maxGenerationValue - this.generationValue <= 10) this.update(10)
           } else {
             this.renderGeneration(0)
           }
@@ -241,13 +241,9 @@ export default class extends Controller {
        this.widthValue = db.world.width
        this.heightValue = db.world.height
        this.rulesValue = db.world.rules
-       this.generationValue = this.generationValue + 1
        this.maxGenerationValue = db.world.geology.length - 1
        this.loadedValue = true
        this.uuidValue = json.uuid
-
-       this.render()
-       this.renderGeneration(this.generationValue)
      })
   }
 
