@@ -52,7 +52,7 @@ export default class extends Controller {
                                               value=${this.heightValue} data-action="input->world#changeDimension"
                                        ></input>`
     this.rulesTarget.innerHTML = `<span>Rulestring: </span>
-                                  <input type="text" name="rules" pattern="B[\d]+\/S[\d]+"
+                                  <input type="text" name="rules" pattern="B[\\d]+\/S[\\d]+"
                                          value="${this.rulesValue}" data-action="input->world#changeField"
                                   ></input>`
   }
