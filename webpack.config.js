@@ -5,7 +5,8 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 module.exports = {
   mode: process.env['BUILD_ENV'] || 'production',
   entry: {
-    index: ['./assets/index/index.js', './assets/index/style.styl']
+    index: ['./assets/index/index.js', './assets/index/style.styl'],
+    shared: ['./assets/shared/style.styl']
   },
   output: {
     filename: '[name].[contenthash:7].js',
@@ -48,5 +49,10 @@ module.exports = {
       filename: '[name].[contenthash:7].css'
     }),
     new WebpackManifestPlugin()
-  ]
+  ],
+  resolve: {
+    alias: {
+      milligram: path.resolve(__dirname, 'node_modules/milligram/dist/milligram.css')
+    }
+  }
 };
