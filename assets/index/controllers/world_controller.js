@@ -260,7 +260,7 @@ export default class extends Controller {
 
   setCellState(x, y, state){
     if(state){
-      this.canvas.fillStyle = "rgb(0,0,0)";
+      this.canvas.fillStyle = this.cellsContainerTarget.getElementsByTagName('canvas')[0].computedStyleMap().get('border-color').toString();
       this.canvas.fillRect (x, y, 1, 1);      
     }else{
       this.canvas.clearRect (x, y, 1, 1);      
