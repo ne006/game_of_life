@@ -30,6 +30,12 @@ export default class extends Controller {
 
   resetHTML(){
     this.context.targetObserver.targetsByName.values.forEach(el => el.innerHTML = '')
+
+    this.element.innerHTML = `<div class='dimensions' data-world-target='dimensions'></div>
+                              <div class='rules' data-world-target='rules'></div>
+                              <div class='cellsContainer' data-world-target='cellsContainer'></div>
+                              <div class='generation' data-world-target='generation'></div>
+                              <div class='fetch' data-world-target='fetch'></div>`
   }
 
   renderNew() {
