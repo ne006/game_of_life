@@ -106,7 +106,7 @@ export default class extends Controller {
                                           <span class="generation-num">${this.generationValue}</span>
                                           <button class="geology-playback paused"
                                             data-action="click->world#playbackGeology"
-                                          ></button>`
+                                          ><i></i></button>`
       } else {
         this.generationTarget.querySelector('input.generation-num-slider').setAttribute('max', this.maxGenerationValue)
         this.generationTarget.querySelector('input.generation-num-slider').setAttribute('value', this.generationValue)
@@ -149,7 +149,8 @@ export default class extends Controller {
   }
 
   playbackGeology(e){
-    let state = e.target.classList.contains('paused') ? 'paused' : 'playback'
+    let elem = e.target.classList.contains('geology-playback') ? e.target : e.target.parentElement
+    let state = elem.classList.contains('paused') ? 'paused' : 'playback'
     let load = true
 
     switch(state){
@@ -165,15 +166,15 @@ export default class extends Controller {
             this.renderGeneration(0)
           }
         }, 500)
-        e.target.classList.remove('paused')
-        e.target.classList.add('playback')
+        elem.classList.remove('paused')
+        elem.classList.add('playback')
         break
       }
       case 'playback': {
         clearInterval(this.playbackLoop)
         this.playbackLoop = null
-        e.target.classList.remove('playback')
-        e.target.classList.add('paused')
+        elem.classList.remove('playback')
+        elem.classList.add('paused')
         break
       }
     }

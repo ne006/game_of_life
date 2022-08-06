@@ -9,8 +9,16 @@
   .generation
     .geology-playback
       &.playback
-        &::after
-          content: "⏸"
+        i
+          display: inline-block
+          width: 32px
+          height: 32px
+          background: url('./images/play.png') center center no-repeat
+          background-size: contain
       &.paused
-        &::after
-          content: "▶"
+        i
+          display: inline-block
+          width: 32px
+          height: 32px
+          background: url('./images/pause.png') center center no-repeat
+          background-size: contain
